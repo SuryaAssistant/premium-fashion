@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+        <!-- Bootstrap CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+        <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
+        <title>Premium Fashion</title>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js" type="text/javascript"></script>
+        <script>
+            //======================================================================
+            // IOTA Tangle Configuration
+            //======================================================================
+            // This example using raspberry pi gateway to filter the message
+            // read more: https://github.com/SuryaAssistant/iota-raspberrypi-gateway
+
+            var companyPublicKey = "02fc8d163ee74b6e972bcc94481d0006f13c8e20896087fbfbda3ebc326ce2269b";
+            var gatewayId = "0xb827eba5f9f6";
+            var tagIndex;                           // it will calculated in <body>
+
+            //======================================================================
+            // Product Information
+            //======================================================================
+            var clothId;
+            var clothId_hash;
+
+            //======================================================================
+            // MQTT Configuration
+            //======================================================================
+            var mqtt;
+            var reconnectTimeout = 2000;
+            var host = "test.mosquitto.org";
+            var port = 8080;
+
+            // create random mqtt topic
+            let returnTopic = Math.random() * 10000000;
+            returnTopic = Math.floor(returnTopic);
+
+            topic = gatewayId + '/' + returnTopic;
+            console.log("MQTT Topic : " + topic);
+
+            //======================================================================
+            // MQTT Function
+            //======================================================================
+            // When user is connect to mqtt, subscribe randomized topic and send 
+            function onConnect(){
+                // Subscribe topic
+                mqtt.subscribe(topic);
+
+                // Send text index to MQTT
+                mqtt_msg = "tag_msg/" + tagIndex + '/' + returnTopic;
+                
+                cloth_msg = new Paho.MQTT.Message(mqtt_msg);
+                cloth_msg.destinationName = gatewayId + "/submit" ;
+                mqtt.send(cloth_msg);
+
+                // change display
+                document.getElementById("blockchain_data").innerHTML=`
+                    <div class="row">
+                        <p>Please wait . . .</p>
+                    </div>
+                    <div class="row">
+                        <p>
+                            Product ID : ${clothId}<br>
+                            Fingerprint : ${clothId_hash}<br>
+                            Product Address : <br>
+                        </p>
+                    </div>
+                    <div class="row" style="padding-top:20px">
+                        <p><b>Product Information</b></p>
+                        <p>
+                            Manufatured Date : 12 October 2022<br>
+                            Ownership : <b>Mr. WhatZhitTooYa</b><br>
+                            Registered Date : 2 February 2023<br>1
+                            Registered Address : 1282490wethiogsfd09sdsdfsd<br>
+                        </p>
+                    </div>
+                `;
+            }
+
+            function onFailure(){
+                console.log("Failed to connect");
+                setTimeout(MQTTconnect, reconnectTimeout);
+            }
+
+            // If gateway give response, display it
+            function onMessageArrived(msg){
+                IOTAResponse=msg.payloadString;
+
+                // show the data in html
+                document.getElementById("blockchain_data").innerHTML = `
+                    <div class="row">
+                        <p></p>
+                    </div>
+                `;
+            }
+
+            // connect to mqtt
+            function MQTTconnect(){
+                console.log("connecting MQTT");
+                mqtt = new Paho.MQTT.Client(host,port,"clientjs");
+
+                var options = {
+                    timeout: 3,
+                    onSuccess: onConnect,
+                    onFailure: onFailure,
+                };
+
+                mqtt.onMessageArrived = onMessageArrived;
+                mqtt.connect(options);
+            }
+        </script>
+    </head>
+    <body>
+        <!-- Navbar -->
+          <nav class="navbar navbar-expand-md navbar-light p-1 primebackground shadow-sm p-3 mb-5 bg-body rounded">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="./index.html" >
+                    <div class="row">
+                        <div class="col" style="text-align:center">
+                            <img src="./assets/img/logo.png" alt="" width="auto" height="40" class="d-inline-block align-text-top">
+                            <span>Premium Fashion - Verify Product</span>
+                        </div>
+                    </div>
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" >
+                <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse justify-content-end navbar-menu" id="navbarSupportedContent">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" href="./index.html" style="color:#a0a0a0"><Strong>Home</Strong></a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="./create.html" style="color:#a0a0a0"><Strong>Add Product (Demo)</Strong></a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="./verify.html" style="color:#a0a0a0"><Strong>Check Product</Strong></a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="./register.html" style="color:#a0a0a0"><Strong>Register</Strong></a>
+                        </li>
+
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+
+        <!-- How to use -->
+        <div class="container" style="">
+            <div class="row" style="padding-bottom:50px">
+                <div class="col">
+                    <div class="card no-border">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-lg-6" style="text-align:center">
+                                    <div class="row">
+                                        <div class="row">
+                                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/QR_code_for_mobile_English_Wikipedia.svg/1200px-QR_code_for_mobile_English_Wikipedia.svg.png" style="height:200px; width:100%; object-fit:contain; text-align:center">
+                                        </div>
+                                        <div class="row" style="padding-top:20px">
+                                            <h3><b>Hint: </b></h3>
+                                            <br>
+                                            <p>
+                                                Scan the QRCode in your cloth
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6" id="blockchain_data">
+                                    <div class="row align-items-center" style="height: 50vh;">
+                                        <div class="mx-auto">
+                                            <div class="input-group mb-3">
+                                                <input type="text" class="form-control" placeholder="Input 16 Character Cloth ID" id="cloth_id">
+                                                <button class="btn btn-outline-secondary" type="button" onclick="print()">verify <i class='bx bx-search'></i></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> 
+        </div>
+
+
+        <!-- JS -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+        <!-- Keccak-256 -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js" integrity="sha512-E8QSvWZ0eCLGk4km3hxSsNmGWbLtSCSUcewDQPQWZF6pEU8GlT8a5fF32wOl1i8ftdMhssTrF/OhyGWwonTcXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <!-- MQTT -->
+
+        <script>
+            function print(){
+                // Get cloth id from user
+                clothId = document.getElementById("cloth_id").value;
+                console.log("Cloth ID : " + clothId);
+
+                // Get Keccak-256 hash of cloth id
+                clothId_hash = CryptoJS.SHA3(clothId, { outputLength: 256 }).toString(CryptoJS.enc.Hex);
+                console.log("Hash : " + clothId_hash);
+
+                // Create tag index for company
+                tagIndex = companyPublicKey + 'premium' + clothId_hash;
+
+                //Connect MQTT for 
+                MQTTconnect();
+            }
+        </script>
+    </body>
+</html>
