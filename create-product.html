@@ -25,11 +25,15 @@
 
             var companyPublicKey = "02fc8d163ee74b6e972bcc94481d0006f13c8e20896087fbfbda3ebc326ce2269b";
             var gatewayId = "0xb827eba5f9f6";
-            var tagIndex;                           // it will calculated in <body>
-            var indexedLink;
+
             //======================================================================
             // Product Information
             //======================================================================
+            var productID, productName, productDescription;
+            var productHash;
+            var productJSON;
+
+            var tagIndex, tagIndexHash;
 
             //======================================================================
             // MQTT Configuration
@@ -43,45 +47,48 @@
             let returnTopic = Math.random() * 10000000;
             returnTopic = Math.floor(returnTopic);
 
-            topic = gatewayId + '/' + returnTopic;
-            console.log("MQTT Topic : " + topic);
+            var subscribeTopic = gatewayId + '/' + returnTopic;
+            console.log("MQTT Topic : " + subscribeTopic);
 
             //======================================================================
-            // Function to call blockchain verifier
+            // Function to get data from form
             //======================================================================
-            function search(){
-                // Get cloth id from user
-                productID = document.getElementById("search_product_id").value;
-                console.log("Product ID : " + productID);
+            function create(){
+                // Get product information
+                productName = document.getElementById("inputName").value;
+                productID = document.getElementById("inputID").value;
+                productDescription = document.getElementById("inputDescription").value;
 
-                // Get Keccak-256 hash of cloth id
+                // Create special JSON format
+                productJSON = "{'name':'"+productName+"','id':'"+productID+"','desc':'"+productDescription+"'}"
+                console.log(productJSON);
+                
+                // Get Keccak-256 hash of product ID
                 productHash = CryptoJS.SHA3(productID, { outputLength: 256 }).toString(CryptoJS.enc.Hex);
                 console.log("Hash : " + productHash);
 
                 // Create tag index for company
                 tagIndex = companyPublicKey + 'premium' + productHash;
-                console.log(tagIndex);
 
                 // Hash tag Index to shrink the size
                 tagIndexHash = CryptoJS.SHA3(tagIndex, { outputLength: 256 }).toString(CryptoJS.enc.Hex);
                 console.log("Tag Index Hash : " + tagIndexHash);
-                indexedLink = "https://explorer.iota.org/devnet/indexed/" + tagIndexHash;
 
-                //Connect MQTT for 
+                // Prepare MQTT connection to gateway
                 MQTTconnect();
             }
 
-                //PF234454
             //======================================================================
             // MQTT Function
             //======================================================================
             // When user is connect to mqtt, subscribe randomized topic and send 
             function onConnect(){
                 // Subscribe topic
-                mqtt.subscribe(topic);
+                mqtt.subscribe(subscribeTopic);
 
-                // Send text index to MQTT
-                mqtt_msg = "tag_msg/" + tagIndexHash + '/' + returnTopic;
+                // Send submit request to gateway
+                // format : submit_special/tag_index/data/return_topic
+                mqtt_msg = "data_special/" + tagIndexHash + '/' + productJSON + '/'+ returnTopic;
                 
                 product_msg = new Paho.MQTT.Message(mqtt_msg);
                 product_msg.destinationName = gatewayId + "/submit" ;
@@ -90,7 +97,8 @@
                 // change display
                 document.getElementById("blockchain_data").innerHTML=`
                     <div class="row">
-                        <p>Please wait. Checking on blockchain . . .</p>
+                        <p>Create a request connection to gateway . . .</p>
+                        <p>Please wait. It may take 1-2 minute</p>
                     </div>
                 `;
             }
@@ -102,89 +110,20 @@
 
             // If gateway give response, display it
             function onMessageArrived(msg){
-                var IOTAResponse=msg.payloadString;
-                IOTAResponse = IOTAResponse.replace(/'/g, '"');
-
-                var blockchainData = JSON.parse(IOTAResponse)
-                var tagIndexListCount = blockchainData.length;
-
-                console.log(blockchainData);
-
-
-                // Data to show
-                var productName, productID, productDescription, productDate;
-                var registeredName, registeredDate;
-
-                var lastTime = 0;
-
-                // Search first uploaded product information
-                for (let i=0; i<tagIndexListCount; i++){
-                    if(blockchainData[i][0]["message"]["data"].hasOwnProperty("name")){
-                        // Get the timestamp
-                        if(lastTime == 0){
-                            lastTime = blockchainData[i][0]["message"]["timestamp"]
-                        }
-
-                        // Bandingkan timestamp
-                        if(blockchainData[i][0]["message"]["timestamp"] > lastTime){
-                            continue;
-                        }
-
-                        // Jika timestamp tidak lebih besar, ambil data
-                        productName = (blockchainData[i][0]["message"]["data"]["name"]);
-                        productID = (blockchainData[i][0]["message"]["data"]["id"]);
-                        productDescription = (blockchainData[i][0]["message"]["data"]["desc"]);
-                        productDate = new Date((blockchainData[i][0]["message"]["timestamp"])*1000);
-                    }
-                }
-
-                lastTime = 0;
-                for (let i=0; i<tagIndexListCount; i++){
-                    if (blockchainData[i][0]["message"]["data"].hasOwnProperty("regName")){
-                        // Get the timestamp
-                        if(lastTime == 0){
-                            lastTime = blockchainData[i][0]["message"]["timestamp"]
-                        }
-
-                        // Bandingkan timestamp
-                        if(blockchainData[i][0]["message"]["timestamp"] > lastTime){
-                            continue;
-                        }
-                        
-                        registeredName = (blockchainData[i][0]["message"]["data"]["regName"])
-                        registeredDate = new Date(((blockchainData[i][0]["message"]["timestamp"]))*1000)
-                    }
-                }
-
+                IOTAResponse=msg.payloadString;
 
                 // show the data in html
                 document.getElementById("blockchain_data").innerHTML = `
                     <div class="row">
-                        <p><b>Product Information</b></p>
-                        <p>
-                            Product Name : ${productName}<br>
-                            Product ID : ${productID}<br>
-                            Product Description : ${productDescription}<br>
-                            Manufactured Date : ${productDate}<br>
-                        </p>
-                    </div>
-                    <div class="row" style="padding-top:20px">
-                        <p><b>Registration Information</b></p>
-                        <p>
-                            Registered Name : ${registeredName}<br>
-                            Registration Date : ${registeredDate}<br>
-                        </p>
-                    </div>
-                    <div class="row" style="padding-top:20px">
-                        <p>Read original data here <a href="${indexedLink}">here</a></p>
+                        <p>Product submitted succesfully at address ${IOTAResponse}</p>
                     </div>
                 `;
             }
 
-            // connect to mqtt
+            // Function to start a connection to MQTT broker
             function MQTTconnect(){
                 console.log("connecting MQTT");
-                mqtt = new Paho.MQTT.Client(host,port,"clientjs");
+                mqtt = new Paho.MQTT.Client(host,port,"webpremiumfashion");
 
                 var options = {
                     timeout: 3,
@@ -245,13 +184,13 @@
                                 <div class="col-lg-6" style="text-align:center">
                                     <div class="row">
                                         <div class="row">
-                                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/QR_code_for_mobile_English_Wikipedia.svg/1200px-QR_code_for_mobile_English_Wikipedia.svg.png" style="height:200px; width:100%; object-fit:contain; text-align:center">
+                                            <img src="https://i.pinimg.com/originals/62/98/b0/6298b026a65cf80bcf9dce061e9b79c9.png" style="height:200px; width:100%; object-fit:contain; text-align:center">
                                         </div>
                                         <div class="row" style="padding-top:20px">
                                             <h3><b>Hint: </b></h3>
                                             <br>
                                             <p>
-                                                Scan the QRCode in your cloth
+                                                Input cloth data in the next column
                                             </p>
                                         </div>
                                     </div>
@@ -259,11 +198,28 @@
                                 <div class="col-lg-6" id="blockchain_data">
                                     <div class="row align-items-center" style="height: 50vh;">
                                         <div class="mx-auto">
+                                            <!-- Product Name -->
                                             <div class="mb-3">
-                                                <label for="exampleFormControlTextarea1" class="form-label">Product ID</label>
-                                                <input type="email" class="form-control" id="search_product_id" placeholder="product id">
-                                                <button class="btn btn-outline-secondary" type="button" onclick="search()">verify <i class='bx bx-search'></i></button>
+                                                <label for="exampleFormControlInput1" class="form-label">Product Name</label>
+                                                <input type="email" class="form-control" id="inputName" placeholder="Black T-Shirt">
                                             </div>
+                                            <!-- Product ID -->
+                                            <div class="mb-3">
+                                                <label for="exampleFormControlInput1" class="form-label">Product ID</label>
+                                                <input type="email" class="form-control" id="inputID" placeholder="PF-170845">
+                                            </div>
+                                            <!-- Product Description -->
+                                            <div class="mb-3">
+                                                <label for="exampleFormControlTextarea1" class="form-label">Product Description</label>
+                                                <textarea class="form-control" id="inputDescription" rows="3"></textarea>
+                                            </div>
+                                            <!-- Submit -->
+                                            <div class="row" style="text-align: right;">
+                                                <div class="mb-3">
+                                                    <button type="submit" class="btn btn-primary mb-3" onclick="create()">Create Product</button>
+                                                </div>
+                                            </div>
+
                                         </div>
                                     </div>
                                 </div>
