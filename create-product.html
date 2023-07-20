@@ -16,125 +16,10 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js" type="text/javascript"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js" integrity="sha512-E8QSvWZ0eCLGk4km3hxSsNmGWbLtSCSUcewDQPQWZF6pEU8GlT8a5fF32wOl1i8ftdMhssTrF/OhyGWwonTcXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-        <script>
-            //======================================================================
-            // IOTA Tangle Configuration
-            //======================================================================
-            // This example using raspberry pi gateway to filter the message
-            // read more: https://github.com/SuryaAssistant/iota-raspberrypi-gateway
+        <script src="./assets/js/gateway-config.js"></script>
+        <script src="./assets/js/mqtt-config.js"></script>
+        <script src="./assets/js/create-product.js"></script>
 
-            var companyPublicKey = "02fc8d163ee74b6e972bcc94481d0006f13c8e20896087fbfbda3ebc326ce2269b";
-            var gatewayId = "0xb827eba5f9f6";
-
-            //======================================================================
-            // Product Information
-            //======================================================================
-            var productID, productName, productDescription;
-            var productHash;
-            var productJSON;
-
-            var tagIndex, tagIndexHash;
-
-            //======================================================================
-            // MQTT Configuration
-            //======================================================================
-            var mqtt;
-            var reconnectTimeout = 2000;
-            var host = "test.mosquitto.org";
-            var port = 8080;
-
-            // create random mqtt topic
-            let returnTopic = Math.random() * 10000000;
-            returnTopic = Math.floor(returnTopic);
-
-            var subscribeTopic = gatewayId + '/' + returnTopic;
-            console.log("MQTT Topic : " + subscribeTopic);
-
-            //======================================================================
-            // Function to get data from form
-            //======================================================================
-            function create(){
-                // Get product information
-                productName = document.getElementById("inputName").value;
-                productID = document.getElementById("inputID").value;
-                productDescription = document.getElementById("inputDescription").value;
-
-                // Create special JSON format
-                productJSON = "{'name':'"+productName+"','id':'"+productID+"','desc':'"+productDescription+"'}"
-                console.log(productJSON);
-                
-                // Get Keccak-256 hash of product ID
-                productHash = CryptoJS.SHA3(productID, { outputLength: 256 }).toString(CryptoJS.enc.Hex);
-                console.log("Hash : " + productHash);
-
-                // Create tag index for company
-                tagIndex = companyPublicKey + 'premium' + productHash;
-
-                // Hash tag Index to shrink the size
-                tagIndexHash = CryptoJS.SHA3(tagIndex, { outputLength: 256 }).toString(CryptoJS.enc.Hex);
-                console.log("Tag Index Hash : " + tagIndexHash);
-
-                // Prepare MQTT connection to gateway
-                MQTTconnect();
-            }
-
-            //======================================================================
-            // MQTT Function
-            //======================================================================
-            // When user is connect to mqtt, subscribe randomized topic and send 
-            function onConnect(){
-                // Subscribe topic
-                mqtt.subscribe(subscribeTopic);
-
-                // Send submit request to gateway
-                // format : submit_special/tag_index/data/return_topic
-                mqtt_msg = "data_special/" + tagIndexHash + '/' + productJSON + '/'+ returnTopic;
-                
-                product_msg = new Paho.MQTT.Message(mqtt_msg);
-                product_msg.destinationName = gatewayId + "/submit" ;
-                mqtt.send(product_msg);
-
-                // change display
-                document.getElementById("blockchain_data").innerHTML=`
-                    <div class="row">
-                        <p>Create a request connection to gateway . . .</p>
-                        <p>Please wait. It may take 1-2 minute</p>
-                    </div>
-                `;
-            }
-
-            function onFailure(){
-                console.log("Failed to connect");
-                setTimeout(MQTTconnect, reconnectTimeout);
-            }
-
-            // If gateway give response, display it
-            function onMessageArrived(msg){
-                IOTAResponse=msg.payloadString;
-
-                // show the data in html
-                document.getElementById("blockchain_data").innerHTML = `
-                    <div class="row">
-                        <p>Product submitted succesfully at address ${IOTAResponse}</p>
-                    </div>
-                `;
-            }
-
-            // Function to start a connection to MQTT broker
-            function MQTTconnect(){
-                console.log("connecting MQTT");
-                mqtt = new Paho.MQTT.Client(host,port,"webpremiumfashion");
-
-                var options = {
-                    timeout: 3,
-                    onSuccess: onConnect,
-                    onFailure: onFailure,
-                };
-
-                mqtt.onMessageArrived = onMessageArrived;
-                mqtt.connect(options);
-            }
-        </script>
     </head>
     <body>
         <!-- Navbar -->
@@ -175,9 +60,14 @@
 
 
         <!-- How to use -->
-        <div class="container" style="">
+        <div class="container">
             <div class="row" style="padding-bottom:50px">
                 <div class="col">
+                    <div class="alert alert-danger" role="alert">
+                        <b>This page is used for demo!</b><br>
+                        Do not use this example in production. 
+                        Only verified and trusted parties are allowed to upload product ID to blockchain via <a href="https://github.com/suryaassistant/iota-raspberrypi-gateway">gateway</a>.
+                    </div>
                     <div class="card no-border">
                         <div class="card-body">
                             <div class="row">
@@ -196,17 +86,18 @@
                                     </div>
                                 </div>
                                 <div class="col-lg-6" id="blockchain_data">
-                                    <div class="row align-items-center" style="height: 50vh;">
+                                    <div class="row align-items-center" >
+                                        <p style="padding-bottom: 20px;"><b>Try to add your own product to blockchain</b></p>
                                         <div class="mx-auto">
                                             <!-- Product Name -->
                                             <div class="mb-3">
                                                 <label for="exampleFormControlInput1" class="form-label">Product Name</label>
-                                                <input type="email" class="form-control" id="inputName" placeholder="Black T-Shirt">
+                                                <input class="form-control" id="inputName" placeholder="Black T-Shirt">
                                             </div>
                                             <!-- Product ID -->
                                             <div class="mb-3">
                                                 <label for="exampleFormControlInput1" class="form-label">Product ID</label>
-                                                <input type="email" class="form-control" id="inputID" placeholder="PF-170845">
+                                                <input class="form-control" id="inputID" placeholder="PF-170845">
                                             </div>
                                             <!-- Product Description -->
                                             <div class="mb-3">

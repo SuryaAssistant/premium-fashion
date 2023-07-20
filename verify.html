@@ -16,187 +16,12 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js" type="text/javascript"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js" integrity="sha512-E8QSvWZ0eCLGk4km3hxSsNmGWbLtSCSUcewDQPQWZF6pEU8GlT8a5fF32wOl1i8ftdMhssTrF/OhyGWwonTcXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-        <script>
-            //======================================================================
-            // IOTA Tangle Configuration
-            //======================================================================
-            // This example using raspberry pi gateway to filter the message
-            // read more: https://github.com/SuryaAssistant/iota-raspberrypi-gateway
-
-            var companyPublicKey = "02fc8d163ee74b6e972bcc94481d0006f13c8e20896087fbfbda3ebc326ce2269b";
-            var gatewayId = "0xb827eba5f9f6";
-            var tagIndex;                           // it will calculated in <body>
-            var indexedLink;
-            //======================================================================
-            // Product Information
-            //======================================================================
-
-            //======================================================================
-            // MQTT Configuration
-            //======================================================================
-            var mqtt;
-            var reconnectTimeout = 2000;
-            var host = "test.mosquitto.org";
-            var port = 8080;
-
-            // create random mqtt topic
-            let returnTopic = Math.random() * 10000000;
-            returnTopic = Math.floor(returnTopic);
-
-            topic = gatewayId + '/' + returnTopic;
-            console.log("MQTT Topic : " + topic);
-
-            //======================================================================
-            // Function to call blockchain verifier
-            //======================================================================
-            function search(){
-                // Get cloth id from user
-                productID = document.getElementById("search_product_id").value;
-                console.log("Product ID : " + productID);
-
-                // Get Keccak-256 hash of cloth id
-                productHash = CryptoJS.SHA3(productID, { outputLength: 256 }).toString(CryptoJS.enc.Hex);
-                console.log("Hash : " + productHash);
-
-                // Create tag index for company
-                tagIndex = companyPublicKey + 'premium' + productHash;
-                console.log(tagIndex);
-
-                // Hash tag Index to shrink the size
-                tagIndexHash = CryptoJS.SHA3(tagIndex, { outputLength: 256 }).toString(CryptoJS.enc.Hex);
-                console.log("Tag Index Hash : " + tagIndexHash);
-                indexedLink = "https://explorer.iota.org/devnet/indexed/" + tagIndexHash;
-
-                //Connect MQTT for 
-                MQTTconnect();
-            }
-
-                //PF234454
-            //======================================================================
-            // MQTT Function
-            //======================================================================
-            // When user is connect to mqtt, subscribe randomized topic and send 
-            function onConnect(){
-                // Subscribe topic
-                mqtt.subscribe(topic);
-
-                // Send text index to MQTT
-                mqtt_msg = "tag_msg/" + tagIndexHash + '/' + returnTopic;
-                
-                product_msg = new Paho.MQTT.Message(mqtt_msg);
-                product_msg.destinationName = gatewayId + "/submit" ;
-                mqtt.send(product_msg);
-
-                // change display
-                document.getElementById("blockchain_data").innerHTML=`
-                    <div class="row">
-                        <p>Please wait. Checking on blockchain . . .</p>
-                    </div>
-                `;
-            }
-
-            function onFailure(){
-                console.log("Failed to connect");
-                setTimeout(MQTTconnect, reconnectTimeout);
-            }
-
-            // If gateway give response, display it
-            function onMessageArrived(msg){
-                var IOTAResponse=msg.payloadString;
-                IOTAResponse = IOTAResponse.replace(/'/g, '"');
-
-                var blockchainData = JSON.parse(IOTAResponse)
-                var tagIndexListCount = blockchainData.length;
-
-                console.log(blockchainData);
-
-
-                // Data to show
-                var productName, productID, productDescription, productDate;
-                var registeredName, registeredDate;
-
-                var lastTime = 0;
-
-                // Search first uploaded product information
-                for (let i=0; i<tagIndexListCount; i++){
-                    if(blockchainData[i][0]["message"]["data"].hasOwnProperty("name")){
-                        // Get the timestamp
-                        if(lastTime == 0){
-                            lastTime = blockchainData[i][0]["message"]["timestamp"]
-                        }
-
-                        // Bandingkan timestamp
-                        if(blockchainData[i][0]["message"]["timestamp"] > lastTime){
-                            continue;
-                        }
-
-                        // Jika timestamp tidak lebih besar, ambil data
-                        productName = (blockchainData[i][0]["message"]["data"]["name"]);
-                        productID = (blockchainData[i][0]["message"]["data"]["id"]);
-                        productDescription = (blockchainData[i][0]["message"]["data"]["desc"]);
-                        productDate = new Date((blockchainData[i][0]["message"]["timestamp"])*1000);
-                    }
-                }
-
-                lastTime = 0;
-                for (let i=0; i<tagIndexListCount; i++){
-                    if (blockchainData[i][0]["message"]["data"].hasOwnProperty("regName")){
-                        // Get the timestamp
-                        if(lastTime == 0){
-                            lastTime = blockchainData[i][0]["message"]["timestamp"]
-                        }
-
-                        // Bandingkan timestamp
-                        if(blockchainData[i][0]["message"]["timestamp"] > lastTime){
-                            continue;
-                        }
-                        
-                        registeredName = (blockchainData[i][0]["message"]["data"]["regName"])
-                        registeredDate = new Date(((blockchainData[i][0]["message"]["timestamp"]))*1000)
-                    }
-                }
-
-
-                // show the data in html
-                document.getElementById("blockchain_data").innerHTML = `
-                    <div class="row">
-                        <p><b>Product Information</b></p>
-                        <p>
-                            Product Name : ${productName}<br>
-                            Product ID : ${productID}<br>
-                            Product Description : ${productDescription}<br>
-                            Manufactured Date : ${productDate}<br>
-                        </p>
-                    </div>
-                    <div class="row" style="padding-top:20px">
-                        <p><b>Registration Information</b></p>
-                        <p>
-                            Registered Name : ${registeredName}<br>
-                            Registration Date : ${registeredDate}<br>
-                        </p>
-                    </div>
-                    <div class="row" style="padding-top:20px">
-                        <p>Read original data here <a href="${indexedLink}">here</a></p>
-                    </div>
-                `;
-            }
-
-            // connect to mqtt
-            function MQTTconnect(){
-                console.log("connecting MQTT");
-                mqtt = new Paho.MQTT.Client(host,port,"clientjs");
-
-                var options = {
-                    timeout: 3,
-                    onSuccess: onConnect,
-                    onFailure: onFailure,
-                };
-
-                mqtt.onMessageArrived = onMessageArrived;
-                mqtt.connect(options);
-            }
-        </script>
+        <script src="./assets/js/gateway-config.js"></script>
+        <script src="./assets/js/mqtt-config.js"></script>
+        <script src="./assets/js/verify.js"></script>
     </head>
+
+
     <body>
         <!-- Navbar -->
           <nav class="navbar navbar-expand-md navbar-light p-1 primebackground shadow-sm p-3 mb-5 bg-body rounded">
@@ -257,13 +82,13 @@
                                     </div>
                                 </div>
                                 <div class="col-lg-6" id="blockchain_data">
-                                    <div class="row align-items-center" style="height: 50vh;">
-                                        <div class="mx-auto">
-                                            <div class="mb-3">
-                                                <label for="exampleFormControlTextarea1" class="form-label">Product ID</label>
-                                                <input type="email" class="form-control" id="search_product_id" placeholder="product id">
-                                                <button class="btn btn-outline-secondary" type="button" onclick="search()">verify <i class='bx bx-search'></i></button>
-                                            </div>
+                                    <p>Product ID</p>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" placeholder="Try : fandi123 or koko9999 or bajubaru123" id="search_product_id">
+                                        <div class="input-group-append">
+                                          <button class="btn btn-primary" type="button" onclick="search()">
+                                            <i class='bx bx-search'></i>
+                                          </button>
                                         </div>
                                     </div>
                                 </div>
