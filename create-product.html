@@ -6,6 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
     
         <!-- Bootstrap CSS -->
+        <link href="./assets/css/index.css" rel="stylesheet">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
         <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
@@ -23,13 +24,13 @@
     </head>
     <body>
         <!-- Navbar -->
-          <nav class="navbar navbar-expand-md navbar-light p-1 primebackground shadow-sm p-3 mb-5 bg-body rounded">
+        <nav class="navbar fixed-top navbar-expand-md navbar-dark p-1 p-3 primebackground">
             <div class="container-fluid">
                 <a class="navbar-brand" href="./index.html" >
                     <div class="row">
                         <div class="col" style="text-align:center">
                             <img src="./assets/img/logo.png" alt="" width="auto" height="40" class="d-inline-block align-text-top">
-                            <span>Premium Fashion - Verify Product</span>
+                            <span class="whitecolor" style="font-family: Verdana, sans-serif; letter-spacing: 3px;">premium fashion</span>
                         </div>
                     </div>
                 </a>
@@ -39,18 +40,18 @@
                 </button>
 
                 <div class="collapse navbar-collapse justify-content-end navbar-menu" id="navbarSupportedContent">
-                    <ul class="navbar-nav">
+                    <ul class="navbar-nav" style="text-align: center;">
                         <li class="nav-item">
-                            <a class="nav-link" href="./index.html" style="color:#a0a0a0"><Strong>Home</Strong></a>
+                            <a class="nav-link whitecolor" href="./index.html">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="./create-product.html" style="color:#a0a0a0"><Strong>Add Product (Demo)</Strong></a>
+                            <a class="nav-link whitecolor" href="./create-product.html" style="color:#a0a0a0">Create Product</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="./verify.html" style="color:#a0a0a0"><Strong>Check Product</Strong></a>
+                            <a class="nav-link whitecolor" href="./verify.html" style="color:#a0a0a0">Verify</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="./register.html" style="color:#a0a0a0"><Strong>Register</Strong></a>
+                            <a class="nav-link whitecolor" href="./register.html" style="color:#a0a0a0">Register</a>
                         </li>
 
                     </ul>
@@ -60,66 +61,68 @@
 
 
         <!-- How to use -->
-        <div class="container">
-            <div class="row" style="padding-bottom:50px">
-                <div class="col">
-                    <div class="alert alert-danger" role="alert">
-                        <b>This page is used for demo!</b><br>
-                        Do not use this example in production. 
-                        Only verified and trusted parties are allowed to upload product ID to blockchain via <a href="https://github.com/suryaassistant/iota-raspberrypi-gateway">gateway</a>.
-                    </div>
-                    <div class="card no-border">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-lg-6" style="text-align:center">
-                                    <div class="row">
-                                        <div class="row">
-                                            <img src="https://i.pinimg.com/originals/62/98/b0/6298b026a65cf80bcf9dce061e9b79c9.png" style="height:200px; width:100%; object-fit:contain; text-align:center">
-                                        </div>
-                                        <div class="row" style="padding-top:20px">
-                                            <h3><b>Hint: </b></h3>
-                                            <br>
-                                            <p>
-                                                Input cloth data in the next column
-                                            </p>
-                                        </div>
+        <section class="d-flex flex-column justify-content-center" style="padding-top: 100px;">
+            <div class="container">
+                <div class="row" style="padding-bottom:50px">
+                    <div class="col">
+                        <div class="alert alert-danger" role="alert" style="border-radius: 10px;">
+                            <b>This page is used for demo!</b><br>
+                            Do not use this example in production. 
+                            Only verified and trusted parties are allowed to upload product ID to blockchain via <a href="https://github.com/suryaassistant/iota-raspberrypi-gateway">gateway</a>.
+                        </div>
+                        <div class="card" style="border-radius: 25px;">
+                            <div class="card-body">
+                                <div class="row" style="text-align: center;">
+                                    <div class="col">
+                                        <h1 class="card-title">Add Your Product to Blockchain</h1>
+                                        <hr>
                                     </div>
                                 </div>
-                                <div class="col-lg-6" id="blockchain_data">
-                                    <div class="row align-items-center" >
-                                        <p style="padding-bottom: 20px;"><b>Try to add your own product to blockchain</b></p>
-                                        <div class="mx-auto">
-                                            <!-- Product Name -->
-                                            <div class="mb-3">
-                                                <label for="exampleFormControlInput1" class="form-label">Product Name</label>
-                                                <input class="form-control" id="inputName" placeholder="Black T-Shirt">
-                                            </div>
-                                            <!-- Product ID -->
-                                            <div class="mb-3">
-                                                <label for="exampleFormControlInput1" class="form-label">Product ID</label>
-                                                <input class="form-control" id="inputID" placeholder="PF-170845">
-                                            </div>
-                                            <!-- Product Description -->
-                                            <div class="mb-3">
-                                                <label for="exampleFormControlTextarea1" class="form-label">Product Description</label>
-                                                <textarea class="form-control" id="inputDescription" rows="3"></textarea>
-                                            </div>
-                                            <!-- Submit -->
-                                            <div class="row" style="text-align: right;">
-                                                <div class="mb-3">
-                                                    <button type="submit" class="btn btn-primary mb-3" onclick="create()">Create Product</button>
+                                <div class="row">
+                                    <div class="col-lg-6 padding-left-right" style="text-align:center">
+                                        <div class="row" style="display: flex;">
+                                            <div class="col" style="position: relative; height: 300px;">
+                                                <div class="row">
+                                                    <img src="./assets/img/product-fingerprint.png" class="d-block" alt="..." style="max-height:300px; object-fit: contain; position: absolute; top: 50%; transform: translateY(-50%); text-align: center;">
                                                 </div>
                                             </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 padding-left-right" id="blockchain_data">
+                                        <div class="row align-items-center" >
+                                            <div class="mx-auto">
+                                                <!-- Product Name -->
+                                                <div class="mb-3">
+                                                    <label class="form-label form-key">Product Name</label>
+                                                    <input class="form-control" id="inputName" placeholder="Black T-Shirt">
+                                                </div>
+                                                <!-- Product ID -->
+                                                <div class="mb-3">
+                                                    <label class="form-label form-key">Product ID</label>
+                                                    <input class="form-control" id="inputID" placeholder="PF-170845">
+                                                </div>
+                                                <!-- Product Description -->
+                                                <div class="mb-3">
+                                                    <label class="form-label form-key">Product Description</label>
+                                                    <textarea class="form-control" id="inputDescription" rows="3"></textarea>
+                                                </div>
+                                                <!-- Submit -->
+                                                <div class="row" style="text-align: right;">
+                                                    <div class="mb-3">
+                                                        <button type="submit" class="btn btn-card mb-3" onclick="create()">Submit Product</button>
+                                                    </div>
+                                                </div>
 
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div> 
-        </div>
+                </div> 
+            </div>
+        </section>
 
 
         <!-- JS -->

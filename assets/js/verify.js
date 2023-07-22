@@ -78,7 +78,7 @@ function onMessageArrived(msg){
 
     // Search first uploaded product information
     for (let i=0; i<tagIndexListCount; i++){
-        if(blockchainData[i][0]["message"]["data"].hasOwnProperty("name")){
+        if(blockchainData[i][0]["message"]["data"].hasOwnProperty("id")){
             // Get the timestamp
             if(lastTime == 0){
                 lastTime = blockchainData[i][0]["message"]["timestamp"]
@@ -118,26 +118,78 @@ function onMessageArrived(msg){
 
     // show the data in html
     document.getElementById("blockchain_data").innerHTML = `
-        <div class="row">
-            <p><b>Product Information</b></p>
+    <!-- Product Title -->
+    <div class="row">
             <p>
-                Product Name : ${productName}<br>
-                Product ID : ${productID}<br>
-                Product Description : ${productDescription}<br>
-                Manufactured Date : ${productDate}<br>
+                <span class="info-title">${productName}</span>
+                <br>
+                <span class="info-subtitle">ID : ${productID}</span>
             </p>
-        </div>
-        <div class="row" style="padding-top:20px">
-            <p><b>Registration Information</b></p>
+            <br>
             <p>
-                Registered Name : ${registeredName}<br>
-                Registration Date : ${registeredDate}<br>
+            <span class="form-key">MANUFACTURE DATE : </span>
+            <br>${productDate}<br>
+            <span class="form-key">PRODUCT DESCRIPTION : </span>
+            <br>${productDescription}<br>
             </p>
-        </div>
-        <div class="row" style="padding-top:20px">
-            <p>Read original data here <a href="${indexedLink}">here</a></p>
-        </div>
+    </div>
     `;
+
+
+    if (registeredName === undefined){
+        document.getElementById("blockchain_data").innerHTML += `
+        <div class="row">
+            <div class="col">
+                <div class="row" style="text-align: right;">
+                    <div class="mb-3">
+                        <a href="./register.html"><button type="submit" class="btn btn-card mb-3">Claim Product</button></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        `
+    }
+
+    else{
+        document.getElementById("blockchain_data").innerHTML += `
+        <!-- Product Ownership -->
+        <div class="row" style="padding-top:20px">
+        <p>
+            <span class="form-key">OWNERSHIP : </span>
+            <br>${registeredName}<br>
+            <span class="form-key">REGISTRATION DATE : </span>
+            <br>${registeredDate}<br>
+        </p>
+        </div>
+    
+        <div class="row" style="padding-top:20px">
+            <p>Read original data <a href="${indexedLink}">here</a></p>
+        </div>
+        `
+    }
+
+    // If there is no product with that id, claim the id
+    if(productID === undefined){
+        // show the data in html
+        document.getElementById("blockchain_data").innerHTML = `
+        <!-- Product Title -->
+        <div class="row">
+            <p>
+            There is no product with this ID.
+            </p>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="row" style="text-align: right;">
+                    <div class="mb-3">
+                        <a href="./create-product.html"><button type="submit" class="btn btn-card mb-3">Claim ID</button></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        `;
+    }
 }
 
 // connect to mqtt

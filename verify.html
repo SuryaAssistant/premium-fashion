@@ -6,6 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
     
         <!-- Bootstrap CSS -->
+        <link href="./assets/css/index.css" rel="stylesheet">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
         <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
@@ -24,13 +25,13 @@
 
     <body>
         <!-- Navbar -->
-          <nav class="navbar navbar-expand-md navbar-light p-1 primebackground shadow-sm p-3 mb-5 bg-body rounded">
+        <nav class="navbar fixed-top navbar-expand-md navbar-dark p-1 p-3 primebackground">
             <div class="container-fluid">
                 <a class="navbar-brand" href="./index.html" >
                     <div class="row">
                         <div class="col" style="text-align:center">
                             <img src="./assets/img/logo.png" alt="" width="auto" height="40" class="d-inline-block align-text-top">
-                            <span>Premium Fashion - Verify Product</span>
+                            <span class="whitecolor" style="font-family: Verdana, sans-serif; letter-spacing: 3px;">premium fashion</span>
                         </div>
                     </div>
                 </a>
@@ -40,18 +41,18 @@
                 </button>
 
                 <div class="collapse navbar-collapse justify-content-end navbar-menu" id="navbarSupportedContent">
-                    <ul class="navbar-nav">
+                    <ul class="navbar-nav" style="text-align: center;">
                         <li class="nav-item">
-                            <a class="nav-link" href="./index.html" style="color:#a0a0a0"><Strong>Home</Strong></a>
+                            <a class="nav-link whitecolor" href="./index.html">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="./create-product.html" style="color:#a0a0a0"><Strong>Add Product (Demo)</Strong></a>
+                            <a class="nav-link whitecolor" href="./create-product.html" style="color:#a0a0a0">Create Product</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="./verify.html" style="color:#a0a0a0"><Strong>Check Product</Strong></a>
+                            <a class="nav-link whitecolor" href="./verify.html" style="color:#a0a0a0">Verify</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="./register.html" style="color:#a0a0a0"><Strong>Register</Strong></a>
+                            <a class="nav-link whitecolor" href="./register.html" style="color:#a0a0a0">Register</a>
                         </li>
 
                     </ul>
@@ -59,46 +60,56 @@
             </div>
         </nav>
 
-
         <!-- How to use -->
-        <div class="container" style="">
-            <div class="row" style="padding-bottom:50px">
-                <div class="col">
-                    <div class="card no-border">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-lg-6" style="text-align:center">
-                                    <div class="row">
-                                        <div class="row">
-                                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/QR_code_for_mobile_English_Wikipedia.svg/1200px-QR_code_for_mobile_English_Wikipedia.svg.png" style="height:200px; width:100%; object-fit:contain; text-align:center">
-                                        </div>
-                                        <div class="row" style="padding-top:20px">
-                                            <h3><b>Hint: </b></h3>
-                                            <br>
-                                            <p>
-                                                Scan the QRCode in your cloth
-                                            </p>
+        <section class="d-flex flex-column justify-content-center" style="padding-top: 100px;">
+            <div class="container">
+                <div class="row" style="padding-bottom:50px">
+                    <div class="col">
+                        <div class="card" style="border-radius: 25px;">
+                            <div class="card-body">
+                                <div class="row" style="text-align: center;">
+                                    <div class="col">
+                                        <h1 class="card-title">Search Product Information</h1>
+                                        <hr>
+                                    </div>                                
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-6 padding-left-right" style="text-align:center">
+                                        <div class="row" style="display: flex;">
+                                            <div class="col" style="position: relative; height: 300px;">
+                                                <div class="row">
+                                                    <img src="./assets/img/doc-search.png" class="d-block" alt="..." style="max-height:250px; object-fit: contain; position: absolute; top: 50%; transform: translateY(-50%); text-align: center;">
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="col-lg-6" id="blockchain_data">
-                                    <p>Product ID</p>
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" placeholder="Try : fandi123 or koko9999 or bajubaru123" id="search_product_id">
-                                        <div class="input-group-append">
-                                          <button class="btn btn-primary" type="button" onclick="search()">
-                                            <i class='bx bx-search'></i>
-                                          </button>
+                                    <div class="col-lg-6 padding-left-right" id="blockchain_data">
+                                        <div class="row align-items-center" >
+                                            <div class="mx-auto">
+                                                <div class="mb-3">
+                                                    <label class="form-label form-key">Product ID</label>
+                                                    <div class="row">
+                                                        <div class="col-9">
+                                                            <input class="form-control" id="search_product_id" placeholder="Try : 12345 or fandi123 or bajubaru123">
+
+                                                        </div>
+                                                        <div class="col-3">
+                                                            <button class="btn btn-card-inline" type="button" onclick="search()">
+                                                                <i class='bx bx-search'></i> Search
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div> 
-        </div>
-
+                </div> 
+            </div>
+        </section>
 
         <!-- JS -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
