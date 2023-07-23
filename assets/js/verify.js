@@ -71,7 +71,7 @@ function onMessageArrived(msg){
     let tagIndexListCount = blockchainData.length;
 
     // Data to show
-    let productName, productID, productDescription, productDate;
+    let productName, productID, productDescription, productDate, manufacturePubKey, productSignature;
     let registeredName, registeredDate;
 
     let lastTime = 0;
@@ -94,6 +94,9 @@ function onMessageArrived(msg){
             productID = (blockchainData[i][0]["message"]["data"]["id"]);
             productDescription = (blockchainData[i][0]["message"]["data"]["desc"]);
             productDate = new Date((blockchainData[i][0]["message"]["timestamp"])*1000);
+            manufacturePubKey = (blockchainData[i][0]["publicKey"]);
+            productSignature = (blockchainData[i][0]["signature"]);
+
         }
     }
 
@@ -120,18 +123,49 @@ function onMessageArrived(msg){
     document.getElementById("blockchain_data").innerHTML = `
     <!-- Product Title -->
     <div class="row">
-            <p>
+        <div class="col">
                 <span class="info-title">${productName}</span>
                 <br>
                 <span class="info-subtitle">ID : ${productID}</span>
-            </p>
-            <br>
-            <p>
+        </div>
+    </div>
+    
+    <br>
+
+    <div class="row">
+        <div class="col">
+            <span class="form-key">MANUFACTURE : </span>
+            <br><span>${manufacturePubKey}</span><br>
+            <hr>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <span class="form-key">SIGNATURE : </span>
+            <br><span>${productSignature}</span><br>
+            <!--
+            <div class="row" id="signature-credential" style="text-align:right"> 
+                <div class="col">
+                    <button type="submit" class="btn btn-card mb-3" onclick="expandSign()">Verify Signature</button>
+                </div>
+            </div>
+            -->
+            <hr>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
             <span class="form-key">MANUFACTURE DATE : </span>
-            <br>${productDate}<br>
+            <br><span>${productDate}</span><br>
+            <hr>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
             <span class="form-key">PRODUCT DESCRIPTION : </span>
-            <br>${productDescription}<br>
-            </p>
+            <br><span>${productDescription}</span><br>
+            <hr>
+        </div>
     </div>
     `;
 
@@ -153,14 +187,21 @@ function onMessageArrived(msg){
     else{
         document.getElementById("blockchain_data").innerHTML += `
         <!-- Product Ownership -->
-        <div class="row" style="padding-top:20px">
-        <p>
-            <span class="form-key">OWNERSHIP : </span>
-            <br>${registeredName}<br>
-            <span class="form-key">REGISTRATION DATE : </span>
-            <br>${registeredDate}<br>
-        </p>
+        <div class="row">
+            <div class="col">
+                <span class="form-key">OWNERSHIP : </span>
+                <br><span>${registeredName}</span><br>
+                <hr>
+            </div>
         </div>
+        <div class="row">
+            <div class="col">
+                <span class="form-key">REGISTRATION DATE : </span>
+                <br><span>${registeredDate}</span><br>
+                <hr>
+            </div>
+        </div>
+
     
         <div class="row" style="padding-top:20px">
             <p>Read original data <a href="${indexedLink}">here</a></p>
