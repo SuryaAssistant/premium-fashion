@@ -7,6 +7,14 @@ h1, h2, h3, h4, h5, h6 {
     font-family: "Raleway", sans-serif;
 }
 
+h3{
+    font-size: 32px;
+}
+
+p{
+    font-size: 18px;
+}
+
 .primecolor{
     color: #0563bb;
 }
@@ -50,14 +58,15 @@ h1, h2, h3, h4, h5, h6 {
     margin-bottom: 40px !important;
 }
 
+
 /*--------------------------------------------------------------
 # Section
 --------------------------------------------------------------*/
 
 section {
+    padding-top:100px;
     width:100%;
-    background-color: #020230;
-    min-height: 100vh;
+    background-color: #fff;
 }
 
 .whitecolor{
