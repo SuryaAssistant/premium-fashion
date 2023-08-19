@@ -78,43 +78,43 @@ function onMessageArrived(msg){
 
     // Search first uploaded product information
     for (let i=0; i<tagIndexListCount; i++){
-        if(blockchainData[i][0]["message"]["data"].hasOwnProperty("id")){
+        if(blockchainData[i][1]["message"]["data"].hasOwnProperty("id")){
             // Get the timestamp
             if(lastTime == 0){
-                lastTime = blockchainData[i][0]["message"]["timestamp"]
+                lastTime = blockchainData[i][1]["message"]["timestamp"]
             }
 
             // Bandingkan timestamp
-            if(blockchainData[i][0]["message"]["timestamp"] > lastTime){
+            if(blockchainData[i][1]["message"]["timestamp"] > lastTime){
                 continue;
             }
 
             // Jika timestamp tidak lebih besar, ambil data
-            productName = (blockchainData[i][0]["message"]["data"]["name"]);
-            productID = (blockchainData[i][0]["message"]["data"]["id"]);
-            productDescription = (blockchainData[i][0]["message"]["data"]["desc"]);
-            productDate = new Date((blockchainData[i][0]["message"]["timestamp"])*1000);
-            manufacturePubKey = (blockchainData[i][0]["publicKey"]);
-            productSignature = (blockchainData[i][0]["signature"]);
+            productName = (blockchainData[i][1]["message"]["data"]["name"]);
+            productID = (blockchainData[i][1]["message"]["data"]["id"]);
+            productDescription = (blockchainData[i][1]["message"]["data"]["desc"]);
+            productDate = new Date((blockchainData[i][1]["message"]["timestamp"])*1000);
+            manufacturePubKey = (blockchainData[i][1]["publicKey"]);
+            productSignature = (blockchainData[i][1]["signature"]);
 
         }
     }
 
     lastTime = 0;
     for (let i=0; i<tagIndexListCount; i++){
-        if (blockchainData[i][0]["message"]["data"].hasOwnProperty("regName")){
+        if (blockchainData[i][1]["message"]["data"].hasOwnProperty("regName")){
             // Get the timestamp
             if(lastTime == 0){
-                lastTime = blockchainData[i][0]["message"]["timestamp"]
+                lastTime = blockchainData[i][1]["message"]["timestamp"]
             }
 
             // Bandingkan timestamp
-            if(blockchainData[i][0]["message"]["timestamp"] > lastTime){
+            if(blockchainData[i][1]["message"]["timestamp"] > lastTime){
                 continue;
             }
             
-            registeredName = (blockchainData[i][0]["message"]["data"]["regName"])
-            registeredDate = new Date(((blockchainData[i][0]["message"]["timestamp"]))*1000)
+            registeredName = (blockchainData[i][1]["message"]["data"]["regName"])
+            registeredDate = new Date(((blockchainData[i][1]["message"]["timestamp"]))*1000)
         }
     }
 
